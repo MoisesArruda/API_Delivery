@@ -50,6 +50,14 @@ def listar_usuarios():
         raise HTTPException(status_code=404, detail="Nenhum usuário cadastrado")
     return list(db_usuarios.values())
 
+@app.get("/produtos/", response_model=List[Produto])
+def listar_produtos():
+    """
+    Lista todos os produtos cadastrados na plataforma
+    """
+    if not db_produtos:
+        raise HTTPException(status_code=404, detail="Nenhum produto cadastrado")
+    return list(db_produtos.values())
 
 @app.get("/usuarios/{usuario_id}", response_model= Usuario)
 def obter_usuario(usuario_id: int = Path(..., gt=0)):
@@ -59,6 +67,15 @@ def obter_usuario(usuario_id: int = Path(..., gt=0)):
     if usuario_id not in db_usuarios:
         raise HTTPException(status_code=404, detail="Usuário não encontrado")
     return db_usuarios[usuario_id]
+
+@app.get("/produtos/{produto_id}", response_model= Produto)
+def obter_produto(produto_id: int = Path(..., gt=0)):
+    """
+    Obtém um produto específico pelo ID
+    """
+    if produto_id not in db_produtos:
+        raise HTTPException(status_code=404, detail="Produto não encontrado")
+    return db_produtos[produto_id]
 
 # Rotas POST
 @app.post("/usuarios/", response_model=Usuario)
@@ -71,6 +88,16 @@ def criar_usuario(usuario: Usuario):
     db_usuarios[usuario.id] = usuario
     return usuario
 
+@app.post("/produtos/", response_model=Produto)
+def criar_produto(produto: Produto):
+    """
+    Cria um novo produto
+    """
+    if produto.id in db_produtos:
+        raise HTTPException(status_code=400, detail="ID de produto já existe")
+    db_produtos[produto.id] = produto
+    return produto
+
 # Rota PUT (Atualizar)
 @app.put("/usuarios/{usuario_id}", response_model=Usuario)
 def atualizar_usuario(usuario_id: int, usuario: Usuario):
@@ -81,6 +108,16 @@ def atualizar_usuario(usuario_id: int, usuario: Usuario):
         raise HTTPException(status_code=404, detail="Usuário não encontrado")
     db_usuarios[usuario_id] = usuario
     return usuario
+
+@app.put("/produtos/{produto_id}", response_model=Produto)
+def atualizar_produto(produto_id: int, produto: Produto):
+    """
+    Atualiza um produto existente
+    """
+    if produto_id not in db_produtos:
+        raise HTTPException(status_code=404, detail="Produto não encontrado")
+    db_produtos[produto_id] = produto
+    return produto
 
 # Rota DELETE (Remover)
 @app.delete("/usuarios/{usuario_id}")
@@ -95,3 +132,27 @@ def deletar_usuario(usuario_id: int):
 
 if __name__ == "__main__":
     uvicorn.run("Aprendizados_FastAPI:app", host="127.0.0.1", port=8000, reload=True) 
+
+    # Usuario:
+    # {
+    # "id": 1,
+    # "nome": "João",
+    # "email": "joao@email.com",
+    # "idade": 25
+    # }
+
+    # Produto:
+#    {
+#     "id": 1,
+#     "nome": "Produto 1",
+#     "preco": 10.0,
+#     "estoque": 5
+#     } 
+
+    # Pedido:
+    # {
+    # "usuario_id": 1,
+    # "produtos": [{"nome": "Produto 1", "preco": 10.0}]
+    # "total": 10.0
+    # } 
+
