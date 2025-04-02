@@ -38,15 +38,18 @@ def root():
     """
     Rota raiz da nossa página
     """
-    return {"message": "Bem-vindo à API de Exemplos"}
+    return {"message": "Bem-vindo à nossa primeira API de exemplo utilizando o FastAPI"}
 
 
-@app.get("/usuarios/", response_model=List[Usuario])
+@app.get("/usuarios/", response_model=List[Usuario]) # A API sempre vai buscar o padrão Usuario para retornar os dados
 def listar_usuarios():
     """
     Lista todos os usuários cadastrados na plataforma
     """
+    if not db_usuarios:
+        raise HTTPException(status_code=404, detail="Nenhum usuário cadastrado")
     return list(db_usuarios.values())
+
 
 @app.get("/usuarios/{usuario_id}", response_model= Usuario)
 def obter_usuario(usuario_id: int = Path(..., gt=0)):
